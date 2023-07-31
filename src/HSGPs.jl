@@ -59,8 +59,8 @@ end
 
 @views optimal_centeredness(hsgp::HSGP, parameters::AbstractMatrix, optimizer; c0=zeros(n_functions(hsgp))) = begin 
     xi = parameters[4:end, :]
-    lsds = log_sds.([hsgp], eachcol(parameters))
-    transform(c) = xi .* exp.(lsds .* (1 .- c)) 
+    lsds = hcat(HSGPs.log_sds.([hsgp], eachcol(parameters))...)
+    transform(c) = xi .* exp.(lsds .* c) 
     loss(c) = mean(-lsds .* c .+ log.(std(transform(c), dims=2)))
     optimizer(loss, c0)
 end 
