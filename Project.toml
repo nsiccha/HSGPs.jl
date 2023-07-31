@@ -1,0 +1,13 @@
+name = "HSGPs"
+uuid = "ad3833d4-b61d-4c64-b982-47e845742538"
+authors = ["Nikolas Siccha <nikolassiccha@gmail.com> and contributors"]
+version = "0.1.0"
+
+[deps]
+
+[compat]
+julia = "1"
+
+[extras]
+
+[targets]
