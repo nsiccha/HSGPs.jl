@@ -1,6 +1,6 @@
 module HSGPs
 
-export AbstractHSGP, HSGP, AHSGP
+export AbstractHSGP, HSGP, AHSGP, n_functions, y_and_logpdf, adapted
 
 abstract type AbstractHSGP{T} end
 
