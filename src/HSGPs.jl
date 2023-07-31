@@ -1,6 +1,6 @@
 module HSGPs
 
-export AbstractHSGP, HSGP, AHSGP, n_functions, y_and_logpdf, adapted
+export AbstractHSGP, HSGP, AHSGP, DummyHSGP, n_functions, y_and_logpdf, adapted
 
 using Distributions
 
@@ -20,6 +20,8 @@ struct AHSGP{P,T} <: AbstractHSGP{T}
     centeredness::Vector{T}
     mean_shift::Vector{T}
 end
+n_functions(ahsgp::AHSGP) = n_functions(ahsgp.hsgp)
+Base.length(ahsgp::AHSGP) = length(ahsgp.hsgp)
 
 # https://github.com/avehtari/casestudies/blob/967cdb3a6432e8985886b96fda306645fe156a29/Motorcycle/gpbasisfun_functions.stan#L12-L14
 HSGP(hyperprior, boundary_factor, n_functions, x) = begin 
@@ -73,5 +75,12 @@ end
     optimizer(loss, s0)
 end 
 
+struct DummyHSGP{P} <: AbstractHSGP{eltype(P)}
+    hyperprior::P
+end
+n_functions(::DummyHSGP) = 0
+Base.length(::DummyHSGP) = 1
+y_and_logpdf(dhsgp::DummyHSGP, parameters::AbstractVector) = parameters[1], logpdf(dhsgp.hyperprior, parameters[1])
+adapted(dhsgp::DummyHSGP, args...; kwargs...) = dhsgp
 
 end
