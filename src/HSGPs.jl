@@ -4,7 +4,7 @@ export AbstractHSGP, HSGP, AHSGP, n_functions, y_and_logpdf, adapted
 
 using Distributions
 
-abstract type AbstractHSGP{T} end <: ContinuousMultivariateDistribution
+abstract type AbstractHSGP{T} <: ContinuousMultivariateDistribution end
 
 struct HSGP{P,T} <: AbstractHSGP{T}
     hyperprior::P
