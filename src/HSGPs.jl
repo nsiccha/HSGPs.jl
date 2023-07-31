@@ -51,7 +51,7 @@ end
     lsds = log_sds(hsgp, parameters)
     w = xic .* exp.(lsds .* (1 .- ahsgp.centeredness))
     intercept = parameters[1] - sum(w .* ahsgp.mean_shift)
-    lpdf = logpdf(hsgp.hyperprior[1], intercept) + sum(logpdf.(hsgp.hyperprior[2:3], parameters[2:3])) + sum(logpdf.(Normal(0., exp.(lsds .* ahsgp.centeredness)), xic))
+    lpdf = logpdf(hsgp.hyperprior[1], intercept) + sum(logpdf.(hsgp.hyperprior[2:3], parameters[2:3])) + sum(logpdf.(Normal.(0., exp.(lsds .* ahsgp.centeredness)), xic))
     intercept .+ hsgp.X * w, lpdf
 end
 
