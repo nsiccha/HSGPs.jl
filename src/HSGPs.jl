@@ -2,7 +2,9 @@ module HSGPs
 
 export AbstractHSGP, HSGP, AHSGP, n_functions, y_and_logpdf, adapted
 
-abstract type AbstractHSGP{T} end
+using Distributions
+
+abstract type AbstractHSGP{T} end <: ContinuousMultivariateDistribution
 
 struct HSGP{P,T} <: AbstractHSGP{T}
     hyperprior::P
@@ -10,6 +12,7 @@ struct HSGP{P,T} <: AbstractHSGP{T}
     X::Matrix{T}
 end
 n_functions(hsgp::HSGP) = length(hsgp.pre_eig)
+Base.length(hsgp::HSGP) = 3 + n_functions(hsgp)
 
 
 struct AHSGP{P,T} <: AbstractHSGP{T}
