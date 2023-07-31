@@ -24,7 +24,7 @@ n_functions(ahsgp::AHSGP) = n_functions(ahsgp.hsgp)
 Base.length(ahsgp::AHSGP) = length(ahsgp.hsgp)
 
 # https://github.com/avehtari/casestudies/blob/967cdb3a6432e8985886b96fda306645fe156a29/Motorcycle/gpbasisfun_functions.stan#L12-L14
-HSGP(hyperprior, boundary_factor, n_functions, x) = begin 
+HSGP(hyperprior, x::AbstractVector, boundary_factor::Real, n_functions::Integer) = begin 
     idxs = 1:n_functions
     pre_eig = (-.25 * (pi/2/boundary_factor)^2) .* idxs .^ 2
     # sin(diag_post_multiply(rep_matrix(pi()/(2*L) * (x+L), M), linspaced_vector(M, 1, M)))/sqrt(L);
