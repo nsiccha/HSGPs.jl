@@ -5,7 +5,7 @@ export AbstractHSGP, HSGP, AHSGP, DummyHSGP, n_functions, y_and_logpdf, adapted,
 using Distributions, LogExpFunctions
 
 pexp(x) = floatmin()+exp(x)
-finite_exp(x, limit=500) = exp(logaddexp(-limit, -logaddexp(-limit, -xi)))
+finite_exp(x, limit=500) = exp(logaddexp(-limit, -logaddexp(-limit, -x)))
 
 abstract type AbstractHSGP{T} <: ContinuousMultivariateDistribution end
 
