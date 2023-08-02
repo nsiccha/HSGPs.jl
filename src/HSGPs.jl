@@ -2,7 +2,7 @@ module HSGPs
 
 export AbstractHSGP, HSGP, AHSGP, DummyHSGP, n_functions, y_and_logpdf, adapted, finite_exp
 
-using Distributions
+using Distributions, LogExpFunctions
 
 pexp(x) = floatmin()+exp(x)
 finite_exp(x, limit=500) = exp(logaddexp(-limit, -logaddexp(-limit, -xi)))
