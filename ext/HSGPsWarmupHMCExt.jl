@@ -2,13 +2,12 @@ module HSGPsWarmupHMCExt
    
 using HSGPs, WarmupHMC
 
-WarmupHMC.reparametrization_parameters(source::HSGP) = hcat(source.centeredness, source.mean_shift)
+WarmupHMC.reparametrization_parameters(source::HSGP) = vcat(source.centeredness, source.mean_shift)
 WarmupHMC.reparametrize(source::HSGP, parameters::AbstractMatrix) = HSGP(
     source.hyperprior,
     source.pre_eig,
     source.X,
-    parameters[:, 1],
-    parameters[:, 2]
+    eachcol(reshape(parameters, (:, 2)))...
 )
 
 @views WarmupHMC.reparametrize(source::HSGP, target::HSGP, draw::AbstractVector) = begin 

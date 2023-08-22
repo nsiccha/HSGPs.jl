@@ -30,13 +30,13 @@ function log_sds(hsgp::HSGP, log_sigma, log_lengthscale, lengthscale=exp(log_len
     # alpha * sqrt(sqrt(2*pi()) * rho) * exp(-0.25*(rho*pi()/2/L)^2 * linspaced_vector(M, 1, M)^2);
     (log_sigma + .25 * log(2*pi) + .5 * log_lengthscale) .+ lengthscale^2 .* hsgp.pre_eig
 end
-@views compute_w(hsgp::HSGP, parameters::AbstractVector) = parameters[4:end] .* exp.(log_sds(hsgp, parameters))
-@views y_and_logpdf(hsgp::HSGP, parameters::AbstractVector) = begin 
-    xi = parameters[4:end]
-    w = xi .* exp.(log_sds(hsgp, parameters))
-    lpdf = sum(logpdf.(hsgp.hyperprior, parameters[1:3])) + sum(logpdf.(Normal(), xi))
-    parameters[1] .+ hsgp.X * w, lpdf
-end
+# @views compute_w(hsgp::HSGP, parameters::AbstractVector) = parameters[4:end] .* exp.(log_sds(hsgp, parameters))
+# @views y_and_logpdf(hsgp::HSGP, parameters::AbstractVector) = begin 
+#     xi = parameters[4:end]
+#     w = xi .* exp.(log_sds(hsgp, parameters))
+#     lpdf = sum(logpdf.(hsgp.hyperprior, parameters[1:3])) + sum(logpdf.(Normal(), xi))
+#     parameters[1] .+ hsgp.X * w, lpdf
+# end
 
 @views y_and_logpdf(hsgp::HSGP, parameters::AbstractVector) = begin
     xic = parameters[4:end]
