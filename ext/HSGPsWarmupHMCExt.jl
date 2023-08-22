@@ -1,4 +1,4 @@
-module HSGPWarmupHMCext
+module HSGPsWarmupHMCExt
    
 using HSGPs, WarmupHMC
 

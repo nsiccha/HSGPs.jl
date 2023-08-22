@@ -11,7 +11,7 @@ LogExpFunctions = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
 WarmupHMC = "60658175-6863-4866-a322-ab51a11c0cfe"
 
 [extensions]
-HSGPsWarmupHMCext = "WarmupHMC"
+HSGPsWarmupHMCExt = "WarmupHMC"
 
 [compat]
 julia = "1"
