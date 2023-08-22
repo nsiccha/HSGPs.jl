@@ -1,11 +1,8 @@
 module HSGPs
 
-export AbstractHSGP, HSGP, AHSGP, DummyHSGP, n_functions, y_and_logpdf, adapted, finite_exp
+export HSGP, n_functions, y_and_logpdf
 
 using Distributions, LogExpFunctions
-
-pexp(x) = floatmin()+exp(x)
-finite_exp(x, limit=500) = exp(logaddexp(-limit, -logaddexp(-limit, -x)))
 
 abstract type AbstractHSGP{T} <: ContinuousMultivariateDistribution end
 
@@ -13,26 +10,19 @@ struct HSGP{P,T} <: AbstractHSGP{T}
     hyperprior::P
     pre_eig::Vector{T}
     X::Matrix{T}
+    centeredness::Vector{T}
+    mean_shift::Vector{T}
 end
 n_functions(hsgp::HSGP) = length(hsgp.pre_eig)
 Base.length(hsgp::HSGP) = 3 + n_functions(hsgp)
 
-
-struct AHSGP{P,T} <: AbstractHSGP{T}
-    hsgp::HSGP{P,T}
-    centeredness::Vector{T}
-    mean_shift::Vector{T}
-end
-n_functions(ahsgp::AHSGP) = n_functions(ahsgp.hsgp)
-Base.length(ahsgp::AHSGP) = length(ahsgp.hsgp)
-
 # https://github.com/avehtari/casestudies/blob/967cdb3a6432e8985886b96fda306645fe156a29/Motorcycle/gpbasisfun_functions.stan#L12-L14
-HSGP(hyperprior::AbstractVector, x::AbstractVector, n_functions::Integer=32, boundary_factor::Real=1.5) = begin 
+HSGP(hyperprior::AbstractVector, x::AbstractVector, n_functions::Integer=32, boundary_factor::Real=1.5, centeredness=zeros(n_functions), mean_shift=zeros(n_functions)) = begin 
     idxs = 1:n_functions
     pre_eig = (-.25 * (pi/2/boundary_factor)^2) .* idxs .^ 2
     # sin(diag_post_multiply(rep_matrix(pi()/(2*L) * (x+L), M), linspaced_vector(M, 1, M)))/sqrt(L);
     X = sin.((x .+ boundary_factor) .* (pi/(2*boundary_factor)) .* idxs') ./ sqrt(boundary_factor)
-    HSGP(hyperprior, pre_eig, X)
+    HSGP(hyperprior, pre_eig, X, centeredness, mean_shift)
 end
 
 log_sds(hsgp::HSGP, parameters::AbstractVector) = log_sds(hsgp, parameters[2], parameters[3])
@@ -48,35 +38,14 @@ end
     parameters[1] .+ hsgp.X * w, lpdf
 end
 
-@views y_and_logpdf(ahsgp::AHSGP, parameters::AbstractVector) = begin
-    hsgp = ahsgp.hsgp 
+@views y_and_logpdf(hsgp::HSGP, parameters::AbstractVector) = begin
     xic = parameters[4:end]
     lsds = log_sds(hsgp, parameters)
-    w = xic .* finite_exp.(lsds .* (1 .- ahsgp.centeredness))
-    intercept = parameters[1] - sum(w .* ahsgp.mean_shift)
-    lpdf = logpdf(hsgp.hyperprior[1], intercept) + sum(logpdf.(hsgp.hyperprior[2:3], parameters[2:3])) + sum(logpdf.(Normal.(0., finite_exp.(lsds .* ahsgp.centeredness)), xic))
+    w = xic .* finite_exp.(lsds .* (1 .- hsgp.centeredness))
+    intercept = parameters[1] - sum(w .* hsgp.mean_shift)
+    lpdf = logpdf(hsgp.hyperprior[1], intercept) + sum(logpdf.(hsgp.hyperprior[2:3], parameters[2:3])) + sum(logpdf.(Normal.(0., finite_exp.(lsds .* hsgp.centeredness)), xic))
     intercept .+ hsgp.X * w, lpdf
 end
-
-adapted(hsgp::HSGP, parameters::AbstractMatrix, optimizer) = begin
-    AHSGP(hsgp, optimal_centeredness(hsgp, parameters, optimizer), optimal_mean_shift(hsgp, parameters, optimizer))
-end
-
-@views optimal_centeredness(hsgp::HSGP, parameters::AbstractMatrix, optimizer; c0=zeros(n_functions(hsgp))) = begin 
-    xi = parameters[4:end, :]
-    lsds = hcat(HSGPs.log_sds.([hsgp], eachcol(parameters))...)
-    transform(c) = xi .* finite_exp.(lsds .* c) 
-    loss(c) = mean(-lsds .* c .+ log.(std(transform(c), dims=2)))
-    optimizer(loss, c0)
-end 
-
-@views optimal_mean_shift(hsgp::HSGP, parameters::AbstractMatrix, optimizer; s0=zeros(n_functions(hsgp))) = begin 
-    intercept = parameters[1, :]
-    W = hcat(compute_w.([hsgp], eachcol(parameters))...)'
-    transform(s) = intercept .+ W * s
-    loss(s) = log(std(transform(s)))
-    optimizer(loss, s0)
-end 
 
 struct DummyHSGP{P} <: AbstractHSGP{eltype(P)}
     hyperprior::P
