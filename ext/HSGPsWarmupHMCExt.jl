@@ -3,7 +3,7 @@ module HSGPsWarmupHMCExt
 using HSGPs, WarmupHMC
 
 WarmupHMC.reparametrization_parameters(source::HSGP) = vcat(source.centeredness, source.mean_shift)
-WarmupHMC.reparametrize(source::HSGP, parameters::AbstractMatrix) = HSGP(
+WarmupHMC.reparametrize(source::HSGP, parameters::AbstractVector) = HSGP(
     source.hyperprior,
     source.pre_eig,
     source.X,
