@@ -7,7 +7,7 @@ WarmupHMC.reparametrize(source::HSGP, parameters::AbstractVector) = HSGP(
     source.hyperprior,
     source.pre_eig,
     source.X,
-    eachcol(reshape(parameters, (:, 2)))...
+    collect.(eachcol(reshape(parameters, (:, 2))))...
 )
 
 @views WarmupHMC.reparametrize(source::HSGP, target::HSGP, draw::AbstractVector) = begin 
