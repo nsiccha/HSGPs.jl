@@ -6,12 +6,12 @@ using Distributions, LogExpFunctions
 
 abstract type AbstractHSGP{T} <: ContinuousMultivariateDistribution end
 
-struct HSGP{P,T} <: AbstractHSGP{T}
+struct HSGP{P,T1,T2} <: AbstractHSGP{promote_type(T1, T2)}
     hyperprior::P
-    pre_eig::Vector{T}
-    X::Matrix{T}
-    centeredness::Vector{T}
-    mean_shift::Vector{T}
+    pre_eig::Vector{T1}
+    X::Matrix{T1}
+    centeredness::Vector{T2}
+    mean_shift::Vector{T2}
 end
 n_functions(hsgp::HSGP) = length(hsgp.pre_eig)
 Base.length(hsgp::HSGP) = 3 + n_functions(hsgp)

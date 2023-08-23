@@ -14,7 +14,7 @@ WarmupHMC.reparametrize(source::HSGP, parameters::AbstractVector) = HSGP(
     sxic = draw[4:end]
     lsds = HSGPs.log_sds(source, draw)
     w = sxic .* exp.(lsds .* (1 .- source.centeredness))
-    txic = w .* exp.(lsds .* (target.centeredness .- 1))
+    txic = sxic .* exp.(lsds .* (target.centeredness .- source.centeredness))
     trintercept = draw[1] + sum(w .* (target.mean_shift - source.mean_shift))
     vcat(trintercept, draw[2:3], txic)
 end
