@@ -1,6 +1,6 @@
 module HSGPs
 
-export HSGP, n_functions, y_and_logpdf
+export HSGP, n_functions, logpdf_and_y
 
 using Distributions, LogExpFunctions
 
@@ -30,21 +30,14 @@ function log_sds(hsgp::HSGP, log_sigma, log_lengthscale, lengthscale=exp(log_len
     # alpha * sqrt(sqrt(2*pi()) * rho) * exp(-0.25*(rho*pi()/2/L)^2 * linspaced_vector(M, 1, M)^2);
     (log_sigma + .25 * log(2*pi) + .5 * log_lengthscale) .+ lengthscale^2 .* hsgp.pre_eig
 end
-# @views compute_w(hsgp::HSGP, parameters::AbstractVector) = parameters[4:end] .* exp.(log_sds(hsgp, parameters))
-# @views y_and_logpdf(hsgp::HSGP, parameters::AbstractVector) = begin 
-#     xi = parameters[4:end]
-#     w = xi .* exp.(log_sds(hsgp, parameters))
-#     lpdf = sum(logpdf.(hsgp.hyperprior, parameters[1:3])) + sum(logpdf.(Normal(), xi))
-#     parameters[1] .+ hsgp.X * w, lpdf
-# end
 
-@views y_and_logpdf(hsgp::HSGP, parameters::AbstractVector) = begin
+@views logpdf_and_y(hsgp::HSGP, parameters::AbstractVector) = begin
     xic = parameters[4:end]
     lsds = log_sds(hsgp, parameters)
     w = xic .* exp.(lsds .* (1 .- hsgp.centeredness))
     intercept = parameters[1] - sum(w .* hsgp.mean_shift)
     lpdf = logpdf(hsgp.hyperprior[1], intercept) + sum(logpdf.(hsgp.hyperprior[2:3], parameters[2:3])) + sum(logpdf.(Normal.(0., exp.(lsds .* hsgp.centeredness)), xic))
-    intercept .+ hsgp.X * w, lpdf
+    lpdf, intercept .+ hsgp.X * w
 end
 
 struct DummyHSGP{P} <: AbstractHSGP{eltype(P)}
@@ -52,7 +45,7 @@ struct DummyHSGP{P} <: AbstractHSGP{eltype(P)}
 end
 n_functions(::DummyHSGP) = 0
 Base.length(::DummyHSGP) = 1
-y_and_logpdf(dhsgp::DummyHSGP, parameters::AbstractVector) = parameters[1], logpdf(dhsgp.hyperprior, parameters[1])
+logpdf_and_y(dhsgp::DummyHSGP, parameters::AbstractVector) = logpdf(dhsgp.hyperprior, parameters[1]), parameters[1]
 adapted(dhsgp::DummyHSGP, args...; kwargs...) = dhsgp
 
 end

@@ -23,4 +23,6 @@ end
     -sum(HSGPs.log_sds(source, draw) .* target.centeredness)
 end
 
+WarmupHMC.logdensity_and_stuff(source::HSGP, draw::AbstractVector) = logpdf_and_y(source, draw)
+
 end
