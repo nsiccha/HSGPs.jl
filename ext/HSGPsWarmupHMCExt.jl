@@ -34,6 +34,6 @@ WarmupHMC.reparametrize(source::HSGP, parameters::AbstractVector) = HSGP(
     lja, tdraw
 end
 
-WarmupHMC.logdensity_and_stuff(source::HSGP, draw::AbstractVector) = logpdf_and_y(source, draw)
+WarmupHMC.lpdf_and_invariants(source::HSGP, draw::AbstractVector) = logpdf_and_y(source, draw)
 
 end
